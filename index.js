@@ -6,7 +6,7 @@ const github = require('@actions/github');
 const core = require('@actions/core');
 const exec = require('@actions/exec');
 const fs = require('fs');
-const path = require('path');
+
 const {
   stories,
   autoScroll,
