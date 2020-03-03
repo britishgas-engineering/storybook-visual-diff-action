@@ -137,7 +137,7 @@ const addIssueComment = (image) => {
           Key: filename,
           Body: fs.createReadStream(filename),
           Bucket: s3_bucket,
-          ACL:'public-read-write'
+          ACL: 'public-read'
         };
 
         bucket.upload(params, (error, image) => {
