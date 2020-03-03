@@ -122,7 +122,7 @@ const addIssueComment = (image) => {
     userAgent: iPhone11.userAgent
   });
   const page = await context.newPage();
-  const storyDetails = await stories(page, CONSTANT_URL);
+  const storyDetails = await stories(page, VARIABLE_URL);
   const storyBreakdown = chunk(storyDetails, 10);
 
   await Promise.all(storyBreakdown.map(async (arr) => { await checkStory(arr, context) }));
