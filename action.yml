@@ -1,0 +1,32 @@
+name: 'Storybook visual difference action'
+description: 'Visual regression testing for Storybook'
+inputs:
+  constant_url:
+    description: 'URL for Storybook iframe.html'
+    required: true
+    default: ''
+  storybook_build:
+    description: 'Building Storybook'
+    default: 'build-storybook'
+  storybook_iframe:
+    description: 'Location of iframe.html'
+    default: 'storybook-static/iframe.html'
+  S3_access_token:
+    description: 'AWS access token for write access for S3'
+    required: true
+  S3_secret_token:
+    description: 'AWS secret token for write access for S3'
+    required: true
+  S3_bucket:
+    description: 'AWS S3 bucket name'
+    required: true
+  S3_region:
+    description: 'AWS S3 bucket Region'
+    required: true
+    default: 'eu-west-2'
+  github_token:
+    description: 'To send image comments'
+    required: true
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
