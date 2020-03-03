@@ -18,6 +18,7 @@ const {
 
 const VARIABLE_URL = `file://${process.env.GITHUB_WORKSPACE}${core.getInput('storybook_iframe')}`;
 const CONSTANT_URL = core.getInput('constant_url');
+console.log(VARIABLE_URL, CONSTANT_URL);
 const build = core.getInput('storybook_build');
 const github_token = core.getInput('github_token');
 const s3_access_token = core.getInput('S3_access_token');
