@@ -131,6 +131,7 @@ const addIssueComment = (image) => {
     combineImage(images, {direction: true})
     .then((img) => {
       const filename = `${commit}.png`;
+
       img.write(filename, async () => {
         const params = {
           Key: filename,
@@ -139,9 +140,9 @@ const addIssueComment = (image) => {
           ACL:'public-read-write'
         };
 
-        const image = await bucket.upload(params);
-
-        addIssueComment(image.Location);
+        bucket.upload(params, (error, image) => {
+          addIssueComment(image.Location);
+        });
       });
     });
   }
