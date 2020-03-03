@@ -135,7 +135,7 @@ const addIssueComment = (image) => {
       img.write(filename, async () => {
         const params = {
           Key: filename,
-          Body: fs.createReadStream(`file://${process.env.GITHUB_WORKSPACE}/${filename}`),
+          Body: fs.createReadStream(filename),
           Bucket: s3_bucket,
           ACL:'public-read-write'
         };
@@ -143,6 +143,7 @@ const addIssueComment = (image) => {
         bucket.upload(params, (error, image) => {
           if (error) {
             console.log('error', error);
+            core.setFailed(error);
           }
           addIssueComment(image.Location);
         });
