@@ -41,11 +41,12 @@ if (!github_token) {
 
 const octokit = new github.GitHub(github_token);
 
-const bucket = new AWS.S3({
-  region: s3_region,
+AWS.config.update({
   accessKeyId: s3_access_token,
   secretAccessKey: s3_secret_token
 });
+
+const bucket = new AWS.S3();
 
 const createCompareImage = async (first, second, third) => {
   return await combineImage(
@@ -133,10 +134,12 @@ const addIssueComment = (image) => {
       const filename = `${commit}.png`;
 
       img.write(filename, async () => {
+        const file = fs.createReadStream(filename);
         const params = {
           Key: filename,
-          Body: fs.createReadStream(filename),
+          Body: file,
           Bucket: s3_bucket,
+          ContentType: 'image/png',
           ACL: 'public-read'
         };
 
