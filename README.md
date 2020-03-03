@@ -1,0 +1,1 @@
+# Storybook Visual Diff Action
