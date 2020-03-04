@@ -143,37 +143,35 @@ const addIssueComment = (image) => {
   console.log('completed review');
 
   if (images.length > 0) {
-    console.log(`There is ${images.length} visual differences`);
-    combineImage(images, {direction: true})
-    .then((img) => {
-      console.log('combining images');
-      const filename = commit;
+    console.log(`There are ${images.length} visual differences`);
+    combineImage(images, {direction: true}).then(async (img) => {
+      img.writeAsync(`${commit}.png`).catch((e) => {
+        console.log('error', e);
+        core.setFailed(e);
+      });
+      console.log('writing image changes');
+      await sharp(`${commit}.png`)
+        .resize(1280)
+        .webp({ lossless: true })
+        .toFile(`${commit}.webp`);
 
-      img.write(`${filename}.png`, async () => {
-        console.log('writing image changes');
-        await sharp(`${filename}.png`)
-          .resize(1280)
-          .webp({ lossless: true })
-          .toFile(`${filename}.webp`);
+      const file = fs.createReadStream(`${commit}.webp`);
+      const params = {
+        Key: `${commit}.webp`,
+        Body: file,
+        Bucket: s3_bucket,
+        ContentType: 'image/webp',
+        ACL: 'public-read'
+      };
 
-        const file = fs.createReadStream(`${filename}.webp`);
-        const params = {
-          Key: `${filename}.webp`,
-          Body: file,
-          Bucket: s3_bucket,
-          ContentType: 'image/webp',
-          ACL: 'public-read'
-        };
+      console.log('Uploading to bucket');
+      bucket.upload(params, (error, image) => {
+        if (error) {
+          console.log('error', error);
+          core.setFailed(error);
+        }
 
-        console.log('Uploading to bucket');
-        bucket.upload(params, (error, image) => {
-          if (error) {
-            console.log('error', error);
-            core.setFailed(error);
-          }
-
-          addIssueComment(image.Location);
-        });
+        addIssueComment(image.Location);
       });
     });
   }
