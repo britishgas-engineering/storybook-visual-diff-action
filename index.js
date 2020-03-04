@@ -148,7 +148,7 @@ const addIssueComment = (image) => {
     .then((img) => {
       const filename = commit;
 
-      img.write(filename, async () => {
+      img.write(`${filename}.png`, async () => {
         console.log('writing image changes');
         await sharp(`${filename}.png`)
           .resize(1280)
