@@ -146,6 +146,7 @@ const addIssueComment = (image) => {
     console.log(`There is ${images.length} visual differences`);
     combineImage(images, {direction: true})
     .then((img) => {
+      console.log('combining images');
       const filename = commit;
 
       img.write(`${filename}.png`, async () => {
@@ -157,7 +158,7 @@ const addIssueComment = (image) => {
 
         const file = fs.createReadStream(`${filename}.webp`);
         const params = {
-          Key: filename,
+          Key: `${filename}.webp`,
           Body: file,
           Bucket: s3_bucket,
           ContentType: 'image/webp',
