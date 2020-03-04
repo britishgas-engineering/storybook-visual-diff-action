@@ -131,11 +131,13 @@ const addIssueComment = (image) => {
   await Promise.all(storyBreakdown.map(async (arr) => { await checkStory(arr, context) }));
 
   if (images.length > 0) {
+    console.log('Visual differences detected');
     combineImage(images, {direction: true})
     .then((img) => {
       const filename = `${commit}.png`;
 
       img.write(filename, async () => {
+        console.log('writing image changes');
         await sharp(filename)
         .resize(800)
         .webp({ lossless: true })
@@ -150,15 +152,19 @@ const addIssueComment = (image) => {
           ACL: 'public-read'
         };
 
+        console.log('Uploading to bucket');
         bucket.upload(params, (error, image) => {
           if (error) {
             console.log('error', error);
             core.setFailed(error);
           }
+
+          addIssueComment(image.Location);
         });
       });
     });
   }
 
   await browser.close();
+  process.exit(0);
 })();
