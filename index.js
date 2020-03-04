@@ -72,7 +72,10 @@ const checkStory = async (arrDetails, context) => {
 
     new Promise((resolve, reject) => {
       looksSame(constant_screenshot, variable_screenshot, (error, data) => {
-        if (error) throw error;
+        if (error) {
+          console.log('error', error);
+          core.setFailed(error);
+        }
 
         if (!data.equal) {
           looksSame.createDiff({
@@ -85,7 +88,11 @@ const checkStory = async (arrDetails, context) => {
             ignoreAntialiasing: true, // ignore antialising by default
             ignoreCaret: true // ignore caret by default
           }, async (error, buffer) => {
-              if (error) throw error;
+              if (error) {
+                console.log('error', error);
+                core.setFailed(error);
+              }
+
               const img = await createCompareImage(constant_screenshot, variable_screenshot, buffer);
               images.push(img);
               console.log(name, 'different');
@@ -126,7 +133,7 @@ const addIssueComment = (image) => {
   });
   const page = await context.newPage();
   const storyDetails = await stories(page, VARIABLE_URL);
-  const storyBreakdown = chunk(storyDetails, 10);
+  const storyBreakdown = chunk(storyDetails, 8);
 
   await Promise.all(storyBreakdown.map(async (arr) => { await checkStory(arr, context) }));
 
