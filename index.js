@@ -53,11 +53,11 @@ const bucket = new AWS.S3();
 const createCompareImage = async (first, second, third) => {
   return await combineImage(
     [
-      { src: first, offsetY: 100 },
-      { src: second, offsetX: 100, offsetY: 100 },
-      { src: third, offsetX: 100, offsetY: 100 }
+      { src: first, offsetY: 25 },
+      { src: second, offsetX: 25, offsetY: 25 },
+      { src: third, offsetX: 25, offsetY: 25 }
     ],
-    { margin: '40 40 40 40' }
+    { margin: '20 20 20 20' }
   );
 };
 
@@ -144,33 +144,46 @@ const addIssueComment = (image) => {
 
   if (images.length > 0) {
     console.log(`There are ${images.length} visual differences`);
-    combineImage(images, {direction: true}).then((img) => {
-      img.write(`${commit}.png`, async () => {
-        console.log('writing image changes');
-        await sharp(`${commit}.png`)
-          .resize(1280)
-          .webp({ lossless: true })
-          .toFile(`${commit}.webp`);
+    combineImage(images, {direction: true}).then(async (img) => {
 
-        const file = fs.createReadStream(`${commit}.webp`);
-        const params = {
-          Key: `${commit}.webp`,
-          Body: file,
-          Bucket: s3_bucket,
-          ContentType: 'image/webp',
-          ACL: 'public-read'
-        };
-
-        console.log('Uploading to bucket');
-        bucket.upload(params, (error, image) => {
+      const buffer = await new Promise((resolve, reject) =>
+        img.getBuffer('image/png', (error, buffer) => {
           if (error) {
-            console.log('error', error);
-            core.setFailed(error);
+            console.log(error);
+            reject(error)
+          } else {
+            resolve(buffer)
           }
+        })
+      );
 
-          addIssueComment(image.Location);
-        });
+      console.log('writing image changes');
+      await sharp(buffer)
+        .resize(720)
+        .webp({ lossless: true })
+        .toFile(`${commit}.webp`);
+
+      const file = fs.createReadStream(`${commit}.webp`);
+      const params = {
+        Key: `${commit}.webp`,
+        Body: file,
+        Bucket: s3_bucket,
+        ContentType: 'image/webp',
+        ACL: 'public-read'
+      };
+
+      console.log('Uploading to bucket');
+      bucket.upload(params, (error, image) => {
+        if (error) {
+          console.log('error', error);
+          core.setFailed(error);
+        }
+
+        addIssueComment(image.Location);
       });
+    }).catch((e) => {
+      console.log('error', e);
+      core.setFailed(e);
     });
   }
 
