@@ -66,13 +66,12 @@ const checkStory = async (arrDetails, context) => {
     const constant_url = `${CONSTANT_URL}?${storyName.url}`;
     const variable_url = `${VARIABLE_URL}?${storyName.url}`;
     const name = `${storyName.kind}-${storyName.name}`;
+    const [constant_screenshot, variable_screenshot] = await Promise.all([
+      createScreenshot(context, constant_url, name),
+      createScreenshot(context, variable_url, name)
+    ]);
 
-    new Promise(async (resolve, reject) => {
-      const [constant_screenshot, variable_screenshot] = await Promise.all([
-        createScreenshot(context, constant_url, name),
-        createScreenshot(context, variable_url, name)
-      ]);
-
+    new Promise((resolve, reject) => {
       looksSame(constant_screenshot, variable_screenshot, (error, data) => {
         if (error) {
           console.log('error', error);
@@ -137,7 +136,6 @@ const addIssueComment = (image) => {
   const storyDetails = await stories(page, VARIABLE_URL);
   const storyBreakdown = chunk(storyDetails, breakdown);
 
-  await page.close();
   await Promise.all(storyBreakdown.map(async (arr) => { await checkStory(arr, context) }));
 
   console.log('completed review');
