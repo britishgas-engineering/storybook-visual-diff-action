@@ -26,7 +26,7 @@ const s3_access_token = core.getInput('S3_access_token');
 const s3_secret_token = core.getInput('S3_secret_token');
 const s3_bucket = core.getInput('S3_bucket');
 const s3_region = core.getInput('S3_region');
-const breakdown = 3;
+const breakdown = 30;
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
 const commit = process.env.GITHUB_SHA;
 const pull_request = github.context.payload.pull_request;
@@ -135,6 +135,8 @@ const addIssueComment = (image) => {
   const page = await context.newPage();
   const storyDetails = await stories(page, VARIABLE_URL);
   const storyBreakdown = chunk(storyDetails, breakdown);
+
+  console.log(`Running ${storyDetails.length} stories in groups of ${storyBreakdown.length}`);
 
   await Promise.all(storyBreakdown.map(async (arr) => { await checkStory(arr, context) }));
 
