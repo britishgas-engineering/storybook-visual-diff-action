@@ -5,12 +5,12 @@ inputs:
     description: 'URL for Storybook iframe.html'
     required: true
     default: ''
-  storybook_build:
-    description: 'Building Storybook'
-    default: 'build-storybook'
+  storybook_serve:
+    description: 'Serve Storybook'
+    default: 'start-storybook'
   storybook_iframe:
     description: 'Location of iframe.html'
-    default: 'storybook-static/iframe.html'
+    default: 'localhost:9001/iframe.html'
   S3_access_token:
     description: 'AWS access token for write access for S3'
     required: true
