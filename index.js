@@ -26,7 +26,7 @@ const s3_access_token = core.getInput('S3_access_token');
 const s3_secret_token = core.getInput('S3_secret_token');
 const s3_bucket = core.getInput('S3_bucket');
 const s3_region = core.getInput('S3_region');
-const breakdown = 1;
+const breakdown = 20;
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
 const commit = process.env.GITHUB_SHA;
 const pull_request = github.context.payload.pull_request;
@@ -66,12 +66,13 @@ const checkStory = async (arrDetails, context) => {
     const constant_url = `${CONSTANT_URL}?${storyName.url}`;
     const variable_url = `${VARIABLE_URL}?${storyName.url}`;
     const name = `${storyName.kind}-${storyName.name}`;
-    const [constant_screenshot, variable_screenshot] = await Promise.all([
-      createScreenshot(context, constant_url, name),
-      createScreenshot(context, variable_url, name)
-    ]);
 
-    new Promise((resolve, reject) => {
+    new Promise(async (resolve, reject) => {
+      const [constant_screenshot, variable_screenshot] = await Promise.all([
+        createScreenshot(context, constant_url, name),
+        createScreenshot(context, variable_url, name)
+      ]);
+
       looksSame(constant_screenshot, variable_screenshot, (error, data) => {
         if (error) {
           console.log('error', error);
