@@ -130,20 +130,22 @@ const addIssueComment = (image) => {
 
   await Promise.all(storyBreakdown.map(async (arr) => { await checkStory(arr, context) }));
 
+  console.log('completed review');
+
   if (images.length > 0) {
-    console.log('Visual differences detected');
+    console.log(`There is ${images.length} visual differences`);
     combineImage(images, {direction: true})
     .then((img) => {
-      const filename = `${commit}.png`;
+      const filename = commit;
 
       img.write(filename, async () => {
         console.log('writing image changes');
-        await sharp(filename)
-        .resize(800)
-        .webp({ lossless: true })
-        .toFile(filename);
+        await sharp(`${filename}.png`)
+          .resize(1280)
+          .webp({ lossless: true })
+          .toFile(`${filename}.webp`);
 
-        const file = fs.createReadStream(filename);
+        const file = fs.createReadStream(`${filename}.webp`);
         const params = {
           Key: filename,
           Body: file,
