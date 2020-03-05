@@ -95,7 +95,7 @@ const checkStory = async (arrDetails, context) => {
               }
 
               const img = await createCompareImage(constant_screenshot, variable_screenshot, buffer);
-              images.push(img);
+              images.push({screenshot:img, name});
               console.log(name, 'different');
               resolve();
           });
@@ -112,8 +112,8 @@ const addIssueComment = (images) => {
   let body = '';
 
   images.forEach((image) => {
-    body += `
-    ![Visual difference](${image})`;
+    body += `## ${image.name}
+![Visual difference](${image.location})`;
   });
 
   octokit.issues.createComment({
@@ -155,7 +155,7 @@ const addIssueComment = (images) => {
       console.log(`image: ${i}`);
       const name = `${commit}-${i}`;
       const buffer = await new Promise((resolve, reject) =>
-        image.getBuffer('image/png', (error, buffer) => {
+        image.screenshot.getBuffer('image/png', (error, buffer) => {
           if (error) {
             console.log(error);
             reject(error)
@@ -181,13 +181,13 @@ const addIssueComment = (images) => {
 
       console.log('Uploading to bucket');
 
-      bucket.upload(params, (error, image) => {
+      bucket.upload(params, (error, img) => {
         if (error) {
           console.log('error', error);
           core.setFailed(error);
         }
 
-        imageLocs.push(image.Location);
+        imageLocs.push({location: img.Location, name: image.name});
       });
 
       i += 1;
