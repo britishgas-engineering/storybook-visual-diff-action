@@ -108,8 +108,13 @@ const checkStory = async (arrDetails, context) => {
   }
 };
 
-const addIssueComment = (image) => {
-  const body = `![Visual difference](${image})`;
+const addIssueComment = (images) => {
+  let body = '';
+
+  images.forEach((image) => {
+    body += `
+    ![Visual difference](${image})`;
+  });
 
   octokit.issues.createComment({
     owner,
@@ -144,8 +149,11 @@ const addIssueComment = (image) => {
 
   if (images.length > 0) {
     console.log(`There are ${images.length} visual differences`);
-    combineImage(images, {direction: true}).then(async (img) => {
-
+    let i = 0;
+    const imageLocs = [];
+    for (const image of images) {
+      console.log(`image: ${i}`);
+      const name = `${commit}-${i}`;
       const buffer = await new Promise((resolve, reject) =>
         img.getBuffer('image/png', (error, buffer) => {
           if (error) {
@@ -156,16 +164,15 @@ const addIssueComment = (image) => {
           }
         })
       );
-
-      console.log('writing image changes');
+      console.log('resizing');
       await sharp(buffer)
         .resize(720)
         .webp({ lossless: true })
-        .toFile(`${commit}.webp`);
+        .toFile(`${name}.webp`);
 
-      const file = fs.createReadStream(`${commit}.webp`);
+      const file = fs.createReadStream(`${name}.webp`);
       const params = {
-        Key: `${commit}.webp`,
+        Key: `${name}.webp`,
         Body: file,
         Bucket: s3_bucket,
         ContentType: 'image/webp',
@@ -173,18 +180,22 @@ const addIssueComment = (image) => {
       };
 
       console.log('Uploading to bucket');
+
       bucket.upload(params, (error, image) => {
         if (error) {
           console.log('error', error);
           core.setFailed(error);
         }
 
-        addIssueComment(image.Location);
+        imageLocs.push(image.Location);
       });
-    }).catch((e) => {
-      console.log('error', e);
-      core.setFailed(e);
-    });
+
+      i += 1;
+
+    }
+
+    addIssueComment(imageLocs);
+
   }
 
   await browser.close();
