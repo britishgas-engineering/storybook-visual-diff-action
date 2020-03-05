@@ -109,11 +109,17 @@ const checkStory = async (arrDetails, context) => {
 };
 
 const addIssueComment = (images) => {
-  let body = '';
+  let body = `# Visual difference
+Some differences have been found! The image on the left is the live version, middle is the changes and the image on the right is the difference between the two. Magenta colour is used to show those differences.
+
+`;
 
   images.forEach((image) => {
-    body += `## ${image.name}
-![Visual difference](${image.location})`;
+    body += `
+## ${image.name}
+
+![Visual difference](${image.location})
+`;
   });
 
   octokit.issues.createComment({
