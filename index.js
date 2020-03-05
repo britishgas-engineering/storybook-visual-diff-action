@@ -155,7 +155,7 @@ const addIssueComment = (images) => {
       console.log(`image: ${i}`);
       const name = `${commit}-${i}`;
       const buffer = await new Promise((resolve, reject) =>
-        img.getBuffer('image/png', (error, buffer) => {
+        image.getBuffer('image/png', (error, buffer) => {
           if (error) {
             console.log(error);
             reject(error)
