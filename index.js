@@ -202,6 +202,13 @@ Some differences have been found! The image on the left is the live version, mid
 
     addIssueComment(imageLocs);
 
+  } else {
+    octokit.issues.createComment({
+      owner,
+      repo,
+      issue_number: pull_request.number,
+      body: 'I have found no visual differences.'
+    });
   }
 
   await browser.close();
